@@ -39,6 +39,7 @@
   const bgDim = $("bgDim");
   const dimVal = $("dimVal");
   const bgMotionSel = $("bgMotion");
+  const bgTextureSel = $("bgTexture");
   const showSearch = $("showSearch");
   const engineSelect = $("engineSelect");
   const placeholderInput = $("placeholderInput");
@@ -134,6 +135,46 @@
     ].join(", ");
   }
 
+  // Subtle repeating texture layered onto the gradient so motion has detail to "grab".
+  // Returns { image, size, repeat } (each may hold multiple comma-separated sub-layers) or null.
+  function textureLayers(name, c) {
+    const ink = T.luminance(c) > 0.5 ? "0,0,0" : "255,255,255";
+    switch (name) {
+      case "dots":
+        return {
+          image: `radial-gradient(circle, rgba(${ink},0.13) 1.2px, transparent 1.7px)`,
+          size: "22px 22px",
+          repeat: "repeat",
+        };
+      case "grid":
+        return {
+          image:
+            `linear-gradient(rgba(${ink},0.08) 1px, transparent 1px), ` +
+            `linear-gradient(90deg, rgba(${ink},0.08) 1px, transparent 1px)`,
+          size: "32px 32px, 32px 32px",
+          repeat: "repeat, repeat",
+        };
+      case "lines":
+        return {
+          image: `repeating-linear-gradient(45deg, rgba(${ink},0.07) 0, rgba(${ink},0.07) 1px, transparent 1px, transparent 13px)`,
+          size: "auto",
+          repeat: "repeat",
+        };
+      case "noise":
+        return {
+          image:
+            "url(\"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'>" +
+            "<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/>" +
+            "<feColorMatrix type='saturate' values='0'/></filter>" +
+            "<rect width='100%' height='100%' filter='url(%23n)' opacity='0.45'/></svg>\")",
+          size: "160px 160px",
+          repeat: "repeat",
+        };
+      default:
+        return null;
+    }
+  }
+
   // Lightweight mouse parallax: rAF-coalesced writes, with a CSS transition easing the rest.
   const Parallax = {
     enabled: false,
@@ -215,16 +256,31 @@
 
     if (usingImage) {
       bgLayer.style.backgroundImage = `url("${bg}")`;
+      bgLayer.style.backgroundSize = "cover";
+      bgLayer.style.backgroundRepeat = "no-repeat";
       bgOverlay.style.opacity = (Math.min(80, Math.max(0, settings.bgDim)) / 100).toString();
       if (motion === "aurora") motion = "none"; // Aurora is a gradient-only effect
     } else if (motion === "aurora") {
       bgLayer.style.backgroundImage = auroraGradient(c);
+      bgLayer.style.backgroundSize = "cover";
+      bgLayer.style.backgroundRepeat = "no-repeat";
       bgOverlay.style.opacity = "0";
     } else {
-      bgLayer.style.backgroundImage =
+      const grad =
         `radial-gradient(120% 120% at 50% 0%, ${T.shade(c, 0.22)} 0%, ${c} 45%, ${T.shade(c, -0.4)} 100%)`;
+      const tex = textureLayers(settings.bgTexture, c);
+      if (tex) {
+        bgLayer.style.backgroundImage = tex.image + ", " + grad;
+        bgLayer.style.backgroundSize = tex.size + ", cover";
+        bgLayer.style.backgroundRepeat = tex.repeat + ", no-repeat";
+      } else {
+        bgLayer.style.backgroundImage = grad;
+        bgLayer.style.backgroundSize = "cover";
+        bgLayer.style.backgroundRepeat = "no-repeat";
+      }
       bgOverlay.style.opacity = "0";
     }
+    bgLayer.style.backgroundPosition = "center";
 
     applyMotion(motion);
 
@@ -558,6 +614,7 @@
     set(bgDim, settings.bgDim);
     dimVal.textContent = settings.bgDim + "%";
     set(bgMotionSel, settings.bgMotion || "none");
+    set(bgTextureSel, settings.bgTexture || "none");
 
     showSearch.checked = !!settings.showSearch;
     set(engineSelect, T.ENGINES[settings.searchEngine] ? settings.searchEngine : "google");
@@ -682,6 +739,7 @@
     setSettings({ bgDim: parseInt(e.target.value, 10) }, true);
   });
   bgMotionSel.addEventListener("change", (e) => setSettings({ bgMotion: e.target.value }));
+  bgTextureSel.addEventListener("change", (e) => setSettings({ bgTexture: e.target.value }));
 
   // Search
   showSearch.addEventListener("change", (e) => setSettings({ showSearch: e.target.checked }));

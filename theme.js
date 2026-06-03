@@ -11,6 +11,7 @@
     bgType: "gradient", // "gradient" | "image"
     bgDim: 35, // 0-80, overlay darkness for image backgrounds
     bgMotion: "none", // none | aurora | kenburns | drift | pan | parallax
+    bgTexture: "none", // none | dots | grid | lines | noise (color gradient only)
     showSearch: true,
     searchEngine: "google",
     searchPlaceholder: "", // "" => auto from engine

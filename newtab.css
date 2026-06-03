@@ -547,6 +547,12 @@ body {
   margin: -8px 0 12px;
 }
 
+.sub-inline {
+  color: #71717c;
+  font-weight: 400;
+  font-size: 11px;
+}
+
 .row {
   display: flex;
   align-items: center;

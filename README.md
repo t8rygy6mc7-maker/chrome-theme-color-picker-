@@ -17,6 +17,7 @@ Then follow [Install (Load Unpacked)](#install-load-unpacked) below — it's fre
 - ⚙️ A **Settings** panel on the New Tab page (bottom-right button) to customize everything
 - 🖼️ **Custom background** — upload your own image (auto-compressed) or use the color gradient, with a dimming slider for readability
 - 🌀 **Background motion** — Aurora (animated gradient), Ken Burns, Float drift, Pan, or Mouse parallax. GPU-accelerated (`transform` only), auto-paused when the tab is hidden, and disabled under `prefers-reduced-motion`
+- 🟦 **Gradient texture** — overlay Dots, Grid, Diagonal lines, or Noise (grain) on the color gradient so the motion effects are actually visible (a smooth gradient has no detail to track). CSS-only, no image assets
 - 🔍 **Search box options** — pick Google / Bing / DuckDuckGo, set a custom placeholder, or hide it
 - 🔗 **Shortcuts** — add any links you want to your home page
 - 🕐 **Clock styles** — Digital, **Analog**, Flip cards, Binary (geeky), or a Word clock, with 12/24-hour and show-seconds options
@@ -49,7 +50,8 @@ extension card.
     *Image dimming* to keep text readable over photos, and pick a **Motion**
     effect (Aurora / Ken Burns / Float drift / Pan / Mouse parallax) to bring it
     to life. Aurora applies to the color gradient; the rest also animate uploaded
-    images.
+    images. For a plain color gradient, add a **Texture** (Dots / Grid / Diagonal
+    lines / Noise) so the motion has detail to track and is actually visible.
   - **Search box** — choose your search engine, set a custom placeholder, or hide it.
   - **Clock & greeting** — pick a clock style (Digital / Analog / Flip cards /
     Binary / Word), 12- or 24-hour, show seconds, and either add your name or
