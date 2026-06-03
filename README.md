@@ -7,6 +7,10 @@ background gradient, accents, and text contrast all update live.
 
 ![icon](icons/icon48.png)
 
+### ⬇️ [Download the latest version (ZIP)](https://github.com/t8rygy6mc7-maker/chrome-theme-color-picker-/archive/refs/heads/main.zip)
+
+Then follow [Install (Load Unpacked)](#install-load-unpacked) below — it's free, no Chrome Web Store needed.
+
 ## Features
 
 - 🎨 Full color picker in the toolbar popup (native picker + hex input + presets)
@@ -25,7 +29,8 @@ background gradient, accents, and text contrast all update live.
 
 It's free — no Chrome Web Store needed.
 
-1. Download this repo: click **Code ▸ Download ZIP** (or `git clone`), then unzip it.
+1. **[Download the ZIP](https://github.com/t8rygy6mc7-maker/chrome-theme-color-picker-/archive/refs/heads/main.zip)**, then unzip it.
+   (Or on the repo page use the green **Code ▸ Download ZIP** button, or `git clone`.)
 2. Open `chrome://extensions` in Chrome.
 3. Toggle **Developer mode** on (top-right).
 4. Click **Load unpacked** and select the unzipped folder (the one containing `manifest.json`).
