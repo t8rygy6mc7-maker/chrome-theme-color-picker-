@@ -54,7 +54,7 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0;
-  transition: opacity 1s ease;
+  transition: opacity 3s ease;
 }
 
 /* Front layer starts visible with a default gradient (no flash before JS runs). */
