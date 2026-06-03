@@ -13,6 +13,8 @@
 
   // Home page elements
   const bgLayer = $("bgLayer");
+  const bgA = $("bgA");
+  const bgB = $("bgB");
   const bgOverlay = $("bgOverlay");
   const clockEl = $("clock");
   const greetingEl = $("greeting");
@@ -63,6 +65,12 @@
   let lastSettings = Object.assign({}, T.DEFAULT_SETTINGS);
   let lastBg = null;
   let bgLoaded = false;
+
+  // Crossfade state: which of the two .bg-img layers is currently shown.
+  let bgFront = bgA;
+  let bgBack = bgB;
+  let lastBgKey = null;
+  let lastBgIsImage = false;
 
   // ---------- utilities ----------
 
@@ -383,6 +391,36 @@
 
   // ---------- rendering ----------
 
+  function setLayerContent(el, desc) {
+    el.style.backgroundImage = desc.image;
+    el.style.backgroundSize = desc.size;
+    el.style.backgroundRepeat = desc.repeat;
+    el.style.backgroundPosition = "center";
+  }
+
+  // Paint the background; crossfade between the two layers when one image
+  // replaces another (rotation or a manual pick). Other changes are instant.
+  function paintBackground(desc, isImage) {
+    const key = desc.image;
+    if (key === lastBgKey) return;
+    const fade = isImage && lastBgIsImage && lastBgKey !== null;
+    if (fade) {
+      setLayerContent(bgBack, desc);
+      void bgBack.offsetWidth; // reflow so the opacity transition runs
+      bgBack.style.opacity = "1";
+      bgFront.style.opacity = "0";
+      const tmp = bgFront;
+      bgFront = bgBack;
+      bgBack = tmp;
+    } else {
+      setLayerContent(bgFront, desc);
+      bgFront.style.opacity = "1";
+      bgBack.style.opacity = "0";
+    }
+    lastBgKey = key;
+    lastBgIsImage = isImage;
+  }
+
   function applyAll(color, settings, bg) {
     const root = document.documentElement.style;
     const c = T.normalizeHex(color) || T.DEFAULT_COLOR;
@@ -396,35 +434,26 @@
     const effImg = Slideshow.url || settings.bgWallpaper || bg; // rotation > pick > upload
     const usingImage = settings.bgType === "image" && !!effImg;
     let motion = settings.bgMotion || "none";
+    let desc;
 
     if (usingImage) {
-      bgLayer.style.backgroundImage = `url("${effImg}")`;
-      bgLayer.style.backgroundSize = "cover";
-      bgLayer.style.backgroundRepeat = "no-repeat";
+      desc = { image: `url("${effImg}")`, size: "cover", repeat: "no-repeat" };
       bgOverlay.style.opacity = (Math.min(80, Math.max(0, settings.bgDim)) / 100).toString();
       if (motion === "aurora") motion = "none"; // Aurora is a gradient-only effect
     } else if (motion === "aurora") {
-      bgLayer.style.backgroundImage = auroraGradient(c);
-      bgLayer.style.backgroundSize = "cover";
-      bgLayer.style.backgroundRepeat = "no-repeat";
+      desc = { image: auroraGradient(c), size: "cover", repeat: "no-repeat" };
       bgOverlay.style.opacity = "0";
     } else {
       const grad =
         `radial-gradient(120% 120% at 50% 0%, ${T.shade(c, 0.22)} 0%, ${c} 45%, ${T.shade(c, -0.4)} 100%)`;
       const tex = textureLayers(settings.bgTexture, c);
-      if (tex) {
-        bgLayer.style.backgroundImage = tex.image + ", " + grad;
-        bgLayer.style.backgroundSize = tex.size + ", cover";
-        bgLayer.style.backgroundRepeat = tex.repeat + ", no-repeat";
-      } else {
-        bgLayer.style.backgroundImage = grad;
-        bgLayer.style.backgroundSize = "cover";
-        bgLayer.style.backgroundRepeat = "no-repeat";
-      }
+      desc = tex
+        ? { image: tex.image + ", " + grad, size: tex.size + ", cover", repeat: tex.repeat + ", no-repeat" }
+        : { image: grad, size: "cover", repeat: "no-repeat" };
       bgOverlay.style.opacity = "0";
     }
-    bgLayer.style.backgroundPosition = "center";
 
+    paintBackground(desc, usingImage);
     applyMotion(motion);
 
     // Text + field contrast: white over images, otherwise derived from the color.

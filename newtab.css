@@ -43,12 +43,25 @@ body {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background:
-    radial-gradient(120% 120% at 50% 0%, var(--accent-light) 0%, var(--accent) 45%, var(--accent-dark) 100%);
+}
+
+/* Two stacked layers so backgrounds can crossfade (opacity is animatable;
+   background-image is not). Both sit inside .bg-layer so they share its motion. */
+.bg-img {
+  position: absolute;
+  inset: 0;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: background 0.35s ease;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+/* Front layer starts visible with a default gradient (no flash before JS runs). */
+#bgA {
+  opacity: 1;
+  background:
+    radial-gradient(120% 120% at 50% 0%, var(--accent-light) 0%, var(--accent) 45%, var(--accent-dark) 100%);
 }
 
 .bg-overlay {

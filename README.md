@@ -16,7 +16,7 @@ Then follow [Install (Load Unpacked)](#install-load-unpacked) below it's free, n
 - 🎨 Full color picker in the toolbar popup (native picker + hex input + presets)
 - ⚙️ A **Settings** panel on the New Tab page (bottom-right button) to customize everything
 - 🖼️ **Custom background** — upload your own image (auto-compressed) or use the color gradient, with a dimming slider for readability
-- 🏞️ **Built-in wallpapers** — pick from free [Unsplash](https://unsplash.com/license) photos in three categories (Landscapes, Cute animals, Cool tech). A landscape is the default background, and you can **auto-rotate** them every 10s / 5m / 10m / 1h / day (seamless preload, paused when the tab is hidden)
+- 🏞️ **Built-in wallpapers** — pick from free [Unsplash](https://unsplash.com/license) photos in three categories (Landscapes, Cute animals, Cool tech). A landscape is the default background, and you can **auto-rotate** them every 10s / 5m / 10m / 1h / day (smooth crossfade between photos, next image preloaded so there's no flash, paused when the tab is hidden)
 - 🌀 **Background motion** — Aurora (animated gradient), Ken Burns, Float drift, Pan, or Mouse parallax. GPU-accelerated (`transform` only), auto-paused when the tab is hidden, and disabled under `prefers-reduced-motion`
 - 🟦 **Gradient texture** — overlay Dots, Grid, Diagonal lines, or Noise (grain) on the color gradient so the motion effects are actually visible (a smooth gradient has no detail to track). CSS-only, no image assets
 - 🔍 **Search box options** — pick Google / Bing / DuckDuckGo, set a custom placeholder, or hide it
