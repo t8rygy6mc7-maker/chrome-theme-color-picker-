@@ -16,6 +16,7 @@ Then follow [Install (Load Unpacked)](#install-load-unpacked) below it's free, n
 - 🎨 Full color picker in the toolbar popup (native picker + hex input + presets)
 - ⚙️ A **Settings** panel on the New Tab page (bottom-right button) to customize everything
 - 🖼️ **Custom background** — upload your own image (auto-compressed) or use the color gradient, with a dimming slider for readability
+- 🏞️ **Built-in wallpapers** — pick from free [Unsplash](https://unsplash.com/license) photos in three categories (Landscapes, Cute animals, Cool tech). Thumbnails load only when you open Settings, and a full photo only when you choose it
 - 🌀 **Background motion** — Aurora (animated gradient), Ken Burns, Float drift, Pan, or Mouse parallax. GPU-accelerated (`transform` only), auto-paused when the tab is hidden, and disabled under `prefers-reduced-motion`
 - 🟦 **Gradient texture** — overlay Dots, Grid, Diagonal lines, or Noise (grain) on the color gradient so the motion effects are actually visible (a smooth gradient has no detail to track). CSS-only, no image assets
 - 🔍 **Search box options** — pick Google / Bing / DuckDuckGo, set a custom placeholder, or hide it
@@ -46,7 +47,8 @@ extension card.
 - Click the toolbar icon → pick a color, type a hex code, or tap a preset.
 - Open a **new tab** and click **⚙ Settings** (bottom-right) to:
   - **Theme color** — same picker as the popup, kept in sync.
-  - **Background** — switch between the color gradient and an uploaded image; use
+  - **Background** — switch between the color gradient, an uploaded image, or a
+    built-in **Wallpaper** (Landscapes / Animals / Tech); use
     *Image dimming* to keep text readable over photos, and pick a **Motion**
     effect (Aurora / Ken Burns / Float drift / Pan / Mouse parallax) to bring it
     to life. Aurora applies to the color gradient; the rest also animate uploaded
@@ -72,6 +74,16 @@ every color.
 If you specifically need the real toolbar/frame recolored, that requires a
 **static theme package** (a separate, one-color-at-a-time theme `.crx`), which is
 a different mechanism than a live color picker.
+
+## Privacy
+
+The extension collects nothing and has no analytics or trackers. Your settings
+live in your own `chrome.storage`, and uploaded background images stay on your
+device. The **only** time anything leaves your machine is if you use the built-in
+**Wallpapers**: those photos are loaded directly from Unsplash's image CDN (a
+normal image request, the same as any website showing an image). Stick to the
+color gradient or your own uploaded image and the New Tab page makes zero network
+requests.
 
 ## Files
 

@@ -77,6 +77,15 @@
         <div class="bg-preview" id="bgPreview" hidden>
           <img id="bgThumb" alt="Background preview" />
         </div>
+        <div class="field">
+          <label>Wallpapers <span class="sub-inline">(free photos — loads from the internet)</span></label>
+          <div class="wp-tabs" id="wpTabs">
+            <button class="wp-tab active" type="button" data-cat="landscapes">Landscapes</button>
+            <button class="wp-tab" type="button" data-cat="animals">Animals</button>
+            <button class="wp-tab" type="button" data-cat="tech">Tech</button>
+          </div>
+          <div class="wp-grid" id="wpGrid"></div>
+        </div>
         <div class="field" id="dimRow">
           <label for="bgDim">Image dimming <span id="dimVal">35%</span></label>
           <input type="range" id="bgDim" min="0" max="80" value="35" />

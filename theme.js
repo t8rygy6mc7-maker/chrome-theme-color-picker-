@@ -9,6 +9,7 @@
 
   const DEFAULT_SETTINGS = {
     bgType: "gradient", // "gradient" | "image"
+    bgWallpaper: "", // remote wallpaper URL (takes precedence over an upload when set)
     bgDim: 35, // 0-80, overlay darkness for image backgrounds
     bgMotion: "parallax", // none | aurora | kenburns | drift | pan | parallax
     bgTexture: "dots", // none | dots | grid | lines | noise (color gradient only)

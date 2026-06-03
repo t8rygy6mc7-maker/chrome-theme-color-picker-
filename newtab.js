@@ -40,6 +40,8 @@
   const dimVal = $("dimVal");
   const bgMotionSel = $("bgMotion");
   const bgTextureSel = $("bgTexture");
+  const wpTabs = $("wpTabs");
+  const wpGrid = $("wpGrid");
   const showSearch = $("showSearch");
   const engineSelect = $("engineSelect");
   const placeholderInput = $("placeholderInput");
@@ -240,6 +242,68 @@
     Parallax.setEnabled(useParallax);
   }
 
+  // ---------- wallpapers (free Unsplash photos, fetched on demand) ----------
+
+  const WALLPAPERS = {
+    landscapes: [
+      "1506744038136-46273834b3fb",
+      "1470071459604-3b5ec3a7fe05",
+      "1501785888041-af3ef285b470",
+      "1426604966848-d7adac402bff",
+      "1433086966358-54859d0ed716",
+    ],
+    animals: [
+      "1543466835-00a7907e9de1",
+      "1518717758536-85ae29035b6d",
+      "1574144611937-0df059b5ef3e",
+      "1518791841217-8f162f1e1131",
+      "1552053831-71594a27632d",
+    ],
+    tech: [
+      "1485827404703-89b55fcc595e",
+      "1518770660439-4636190af475",
+      "1517336714731-489689fd1ca8",
+      "1526374965328-7f61d4dc18c5",
+      "1498050108023-c5249f4df085",
+    ],
+  };
+
+  const wpFull = (id) =>
+    `https://images.unsplash.com/photo-${id}?w=1920&q=80&auto=format&fit=crop`;
+  const wpThumb = (id) =>
+    `https://images.unsplash.com/photo-${id}?w=160&h=100&fit=crop&q=60`;
+
+  let currentWpCat = "landscapes";
+  let wpRendered = false;
+
+  function renderWallpaperGrid(cat) {
+    currentWpCat = cat;
+    wpTabs.querySelectorAll(".wp-tab").forEach((t) =>
+      t.classList.toggle("active", t.dataset.cat === cat)
+    );
+    wpGrid.innerHTML = "";
+    (WALLPAPERS[cat] || []).forEach((id) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "wp-thumb";
+      b.style.backgroundImage = `url("${wpThumb(id)}")`;
+      b.dataset.url = wpFull(id);
+      b.title = "Use this wallpaper";
+      b.addEventListener("click", () =>
+        setSettings({ bgType: "image", bgWallpaper: b.dataset.url })
+      );
+      wpGrid.appendChild(b);
+    });
+    updateWallpaperActive();
+  }
+
+  function updateWallpaperActive() {
+    const cur = lastSettings.bgWallpaper || "";
+    wpGrid.querySelectorAll(".wp-thumb").forEach((b) =>
+      b.classList.toggle("active", b.dataset.url === cur)
+    );
+  }
+
   // ---------- rendering ----------
 
   function applyAll(color, settings, bg) {
@@ -251,11 +315,12 @@
     root.setProperty("--accent-light", T.shade(c, 0.22));
     root.setProperty("--accent-dark", T.shade(c, -0.4));
 
-    const usingImage = settings.bgType === "image" && !!bg;
+    const effImg = settings.bgWallpaper || bg; // wallpaper URL wins over an upload
+    const usingImage = settings.bgType === "image" && !!effImg;
     let motion = settings.bgMotion || "none";
 
     if (usingImage) {
-      bgLayer.style.backgroundImage = `url("${bg}")`;
+      bgLayer.style.backgroundImage = `url("${effImg}")`;
       bgLayer.style.backgroundSize = "cover";
       bgLayer.style.backgroundRepeat = "no-repeat";
       bgOverlay.style.opacity = (Math.min(80, Math.max(0, settings.bgDim)) / 100).toString();
@@ -608,8 +673,10 @@
     const isImage = settings.bgType === "image";
     bgGradientBtn.classList.toggle("active", !isImage);
     bgImageBtn.classList.toggle("active", isImage);
-    bgPreview.hidden = !bg;
-    if (bg) bgThumb.src = bg;
+    const effImg = settings.bgWallpaper || bg;
+    bgPreview.hidden = !effImg;
+    if (effImg) bgThumb.src = effImg;
+    updateWallpaperActive();
     dimRow.hidden = !isImage;
     set(bgDim, settings.bgDim);
     dimVal.textContent = settings.bgDim + "%";
@@ -669,6 +736,12 @@
   // ---------- drawer open/close ----------
 
   function openDrawer() {
+    // Build the wallpaper thumbnails only the first time Settings is opened,
+    // so no external image requests happen unless the user wants them.
+    if (!wpRendered) {
+      renderWallpaperGrid(currentWpCat);
+      wpRendered = true;
+    }
     syncControls(lastColor, lastSettings, lastBg);
     drawer.hidden = false;
     scrim.hidden = false;
@@ -708,7 +781,7 @@
   // Background
   bgGradientBtn.addEventListener("click", () => setSettings({ bgType: "gradient" }));
   bgImageBtn.addEventListener("click", () => {
-    if (lastBg) setSettings({ bgType: "image" });
+    if (lastBg || lastSettings.bgWallpaper) setSettings({ bgType: "image" });
     else bgFileInput.click();
   });
   bgFileInput.addEventListener("change", (e) => {
@@ -719,7 +792,7 @@
         T.setBackground(dataUrl).then(() => {
           lastBg = dataUrl;
           bgLoaded = true;
-          setSettings({ bgType: "image" });
+          setSettings({ bgType: "image", bgWallpaper: "" });
         })
       )
       .catch((err) =>
@@ -731,7 +804,7 @@
     T.clearBackground().then(() => {
       lastBg = null;
       bgLoaded = true;
-      setSettings({ bgType: "gradient" });
+      setSettings({ bgType: "gradient", bgWallpaper: "" });
     });
   });
   bgDim.addEventListener("input", (e) => {
@@ -740,6 +813,9 @@
   });
   bgMotionSel.addEventListener("change", (e) => setSettings({ bgMotion: e.target.value }));
   bgTextureSel.addEventListener("change", (e) => setSettings({ bgTexture: e.target.value }));
+  wpTabs.querySelectorAll(".wp-tab").forEach((t) => {
+    t.addEventListener("click", () => renderWallpaperGrid(t.dataset.cat));
+  });
 
   // Search
   showSearch.addEventListener("change", (e) => setSettings({ showSearch: e.target.checked }));
