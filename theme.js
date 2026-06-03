@@ -8,8 +8,10 @@
   const DEFAULT_COLOR = "#6c5ce7";
 
   const DEFAULT_SETTINGS = {
-    bgType: "gradient", // "gradient" | "image"
-    bgWallpaper: "", // remote wallpaper URL (takes precedence over an upload when set)
+    bgType: "image", // "gradient" | "image" — defaults to a landscape wallpaper
+    bgWallpaper: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&q=80&auto=format&fit=crop",
+    wpCategory: "landscapes", // wallpaper set used by the gallery + rotation
+    wpRotate: "off", // off | 10s | 5m | 10m | 1h | 1d — auto-change interval
     bgDim: 35, // 0-80, overlay darkness for image backgrounds
     bgMotion: "parallax", // none | aurora | kenburns | drift | pan | parallax
     bgTexture: "dots", // none | dots | grid | lines | noise (color gradient only)

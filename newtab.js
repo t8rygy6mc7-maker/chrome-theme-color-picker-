@@ -42,6 +42,7 @@
   const bgTextureSel = $("bgTexture");
   const wpTabs = $("wpTabs");
   const wpGrid = $("wpGrid");
+  const wpRotateSel = $("wpRotate");
   const showSearch = $("showSearch");
   const engineSelect = $("engineSelect");
   const placeholderInput = $("placeholderInput");
@@ -288,9 +289,10 @@
       b.className = "wp-thumb";
       b.style.backgroundImage = `url("${wpThumb(id)}")`;
       b.dataset.url = wpFull(id);
+      b.dataset.cat = cat;
       b.title = "Use this wallpaper";
       b.addEventListener("click", () =>
-        setSettings({ bgType: "image", bgWallpaper: b.dataset.url })
+        setSettings({ bgType: "image", bgWallpaper: b.dataset.url, wpCategory: b.dataset.cat })
       );
       wpGrid.appendChild(b);
     });
@@ -298,11 +300,86 @@
   }
 
   function updateWallpaperActive() {
-    const cur = lastSettings.bgWallpaper || "";
+    const cur = Slideshow.url || lastSettings.bgWallpaper || "";
     wpGrid.querySelectorAll(".wp-thumb").forEach((b) =>
       b.classList.toggle("active", b.dataset.url === cur)
     );
   }
+
+  // Auto-rotate the wallpaper through its category. Per-tab + boundary-aligned,
+  // and never writes to storage (so frequent changes don't hit sync quotas).
+  const ROTATE_MS = {
+    off: 0, "10s": 10000, "5m": 300000, "10m": 600000, "1h": 3600000, "1d": 86400000,
+  };
+
+  const Slideshow = {
+    sig: "",
+    list: [],
+    index: 0,
+    url: null, // current rotated wallpaper (null = not rotating)
+    intervalMs: 0,
+    timer: 0,
+
+    configure(settings) {
+      const intervalMs = ROTATE_MS[settings.wpRotate] || 0;
+      const cat = settings.wpCategory;
+      const list = WALLPAPERS[cat] || [];
+      const active =
+        settings.bgType === "image" && intervalMs > 0 && list.length > 1 && !!settings.bgWallpaper;
+      const sig = active ? cat + "|" + intervalMs + "|" + settings.bgWallpaper : "off";
+      if (sig === this.sig) return;
+      this.sig = sig;
+      this.stop();
+      if (!active) {
+        this.url = null;
+        this.intervalMs = 0;
+        return;
+      }
+      this.list = list;
+      this.intervalMs = intervalMs;
+      const found = list.map(wpFull).indexOf(settings.bgWallpaper);
+      this.index = found >= 0 ? found : 0;
+      this.url = wpFull(list[this.index]);
+      this.schedule();
+    },
+
+    schedule() {
+      this.stop();
+      if (document.hidden || !this.intervalMs) return;
+      const delay = this.intervalMs - (Date.now() % this.intervalMs);
+      this.timer = setTimeout(() => this.tick(), delay);
+    },
+
+    tick() {
+      // Preload the next photo, then swap once it's ready so there's no flash.
+      const nextIndex = (this.index + 1) % this.list.length;
+      const nextUrl = wpFull(this.list[nextIndex]);
+      const swap = () => {
+        this.index = nextIndex;
+        this.url = nextUrl;
+        applyAll(lastColor, lastSettings, lastBg);
+        this.schedule();
+      };
+      const img = new Image();
+      img.onload = swap;
+      img.onerror = swap;
+      img.src = nextUrl;
+    },
+
+    stop() {
+      if (this.timer) {
+        clearTimeout(this.timer);
+        this.timer = 0;
+      }
+    },
+
+    pause() {
+      this.stop();
+    },
+    resume() {
+      this.schedule();
+    },
+  };
 
   // ---------- rendering ----------
 
@@ -315,7 +392,8 @@
     root.setProperty("--accent-light", T.shade(c, 0.22));
     root.setProperty("--accent-dark", T.shade(c, -0.4));
 
-    const effImg = settings.bgWallpaper || bg; // wallpaper URL wins over an upload
+    Slideshow.configure(settings);
+    const effImg = Slideshow.url || settings.bgWallpaper || bg; // rotation > pick > upload
     const usingImage = settings.bgType === "image" && !!effImg;
     let motion = settings.bgMotion || "none";
 
@@ -682,6 +760,7 @@
     dimVal.textContent = settings.bgDim + "%";
     set(bgMotionSel, settings.bgMotion || "none");
     set(bgTextureSel, settings.bgTexture || "none");
+    set(wpRotateSel, settings.wpRotate || "off");
 
     showSearch.checked = !!settings.showSearch;
     set(engineSelect, T.ENGINES[settings.searchEngine] ? settings.searchEngine : "google");
@@ -739,7 +818,7 @@
     // Build the wallpaper thumbnails only the first time Settings is opened,
     // so no external image requests happen unless the user wants them.
     if (!wpRendered) {
-      renderWallpaperGrid(currentWpCat);
+      renderWallpaperGrid(lastSettings.wpCategory || currentWpCat);
       wpRendered = true;
     }
     syncControls(lastColor, lastSettings, lastBg);
@@ -816,6 +895,7 @@
   wpTabs.querySelectorAll(".wp-tab").forEach((t) => {
     t.addEventListener("click", () => renderWallpaperGrid(t.dataset.cat));
   });
+  wpRotateSel.addEventListener("change", (e) => setSettings({ wpRotate: e.target.value }));
 
   // Search
   showSearch.addEventListener("change", (e) => setSettings({ showSearch: e.target.checked }));
@@ -899,10 +979,12 @@
     if (document.hidden) {
       bgLayer.classList.add("bg-paused");
       Parallax.pause();
+      Slideshow.pause();
       stopTicks();
     } else {
       bgLayer.classList.remove("bg-paused");
       Parallax.resume();
+      Slideshow.resume();
       Clock.tick();
       updateGreeting();
       startTicks();
