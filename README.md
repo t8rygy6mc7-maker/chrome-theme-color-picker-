@@ -9,7 +9,7 @@ background gradient, accents, and text contrast all update live.
 
 ### ⬇️ [Download the latest version (ZIP)](https://github.com/t8rygy6mc7-maker/chrome-theme-color-picker-/archive/refs/heads/main.zip)
 
-Then follow [Install (Load Unpacked)](#install-load-unpacked) below it's free, no Chrome Web Store needed.
+Then follow [Install (Load Unpacked)](#install-load-unpacked) below it's free, no Chrome Web Store needed. Pweeeeaaase check it out 
 
 ## Features
 
