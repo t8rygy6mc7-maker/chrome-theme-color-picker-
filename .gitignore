@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Claude Code local settings
+.claude/
+
+# Logs
+*.log
+
+# Windows / editor cruft
+Thumbs.db
+*.swp

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="newtab.css" />
+  <title>New Tab</title>
+</head>
+<body>
+  <!-- Background layers sit behind everything -->
+  <div class="bg-layer" id="bgLayer"></div>
+  <div class="bg-overlay" id="bgOverlay"></div>
+
+  <main class="stage">
+    <div class="clock" id="clock">--:--</div>
+    <div class="greeting" id="greeting">Hello</div>
+
+    <form class="search" id="searchForm" autocomplete="off">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search Google or type a URL"
+        spellcheck="false"
+      />
+      <button type="submit" aria-label="Search">→</button>
+    </form>
+
+    <nav class="shortcuts" id="shortcuts"></nav>
+  </main>
+
+  <button class="settings-btn" id="settingsBtn" type="button" title="Settings">
+    <span class="gear">⚙</span><span>Settings</span>
+  </button>
+
+  <!-- Settings drawer -->
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="drawer" id="drawer" hidden aria-label="Settings">
+    <header class="drawer-head">
+      <h2>Settings</h2>
+      <button class="icon-btn" id="closeDrawer" type="button" aria-label="Close">✕</button>
+    </header>
+
+    <div class="drawer-body">
+      <!-- Theme color -->
+      <section class="group">
+        <h3>Theme color</h3>
+        <div class="picker-row">
+          <label class="swatch-label" title="Open color picker">
+            <input type="color" id="colorInput" value="#6c5ce7" />
+            <span class="swatch-overlay">Pick</span>
+          </label>
+          <div class="hex-field">
+            <span class="hash">#</span>
+            <input type="text" id="hexInput" maxlength="6" spellcheck="false"
+              autocomplete="off" value="6c5ce7" />
+          </div>
+        </div>
+        <div class="presets" id="presets"></div>
+        <div class="row gap">
+          <button class="btn ghost" id="randomBtn" type="button">Random</button>
+          <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+        </div>
+      </section>
+
+      <!-- Background -->
+      <section class="group">
+        <h3>Background</h3>
+        <div class="segmented" id="bgSegmented">
+          <button class="seg" id="bgGradientBtn" type="button" data-bg="gradient">Color gradient</button>
+          <button class="seg" id="bgImageBtn" type="button" data-bg="image">Image</button>
+        </div>
+        <div class="row gap">
+          <label class="btn primary" for="bgFileInput">Upload image…</label>
+          <input type="file" id="bgFileInput" accept="image/*" hidden />
+          <button class="btn ghost" id="bgRemoveBtn" type="button">Remove</button>
+        </div>
+        <div class="bg-preview" id="bgPreview" hidden>
+          <img id="bgThumb" alt="Background preview" />
+        </div>
+        <div class="field" id="dimRow">
+          <label for="bgDim">Image dimming <span id="dimVal">35%</span></label>
+          <input type="range" id="bgDim" min="0" max="80" value="35" />
+        </div>
+        <div class="field">
+          <label for="bgMotion">Motion</label>
+          <select id="bgMotion">
+            <option value="none">None</option>
+            <option value="aurora">Aurora (animated gradient)</option>
+            <option value="kenburns">Ken Burns (zoom &amp; pan)</option>
+            <option value="drift">Float drift</option>
+            <option value="pan">Pan (slow scroll)</option>
+            <option value="parallax">Mouse parallax</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Search box -->
+      <section class="group">
+        <h3>Search box</h3>
+        <label class="switch-row">
+          <span>Show search bar</span>
+          <span class="switch"><input type="checkbox" id="showSearch" checked /><span class="slider"></span></span>
+        </label>
+        <div class="field">
+          <label for="engineSelect">Search engine</label>
+          <select id="engineSelect">
+            <option value="google">Google</option>
+            <option value="bing">Bing</option>
+            <option value="duckduckgo">DuckDuckGo</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="placeholderInput">Placeholder text (optional)</label>
+          <input type="text" id="placeholderInput" placeholder="Search Google or type a URL" />
+        </div>
+      </section>
+
+      <!-- Clock & greeting -->
+      <section class="group">
+        <h3>Clock &amp; greeting</h3>
+        <label class="switch-row">
+          <span>Show clock</span>
+          <span class="switch"><input type="checkbox" id="showClock" checked /><span class="slider"></span></span>
+        </label>
+        <div class="field">
+          <label for="clockStyle">Clock style</label>
+          <select id="clockStyle">
+            <option value="digital">Digital</option>
+            <option value="analog">Analog</option>
+            <option value="flip">Flip cards</option>
+            <option value="binary">Binary (geeky)</option>
+            <option value="word">Word clock</option>
+          </select>
+        </div>
+        <label class="switch-row">
+          <span>24-hour time</span>
+          <span class="switch"><input type="checkbox" id="hour24" /><span class="slider"></span></span>
+        </label>
+        <label class="switch-row">
+          <span>Show seconds</span>
+          <span class="switch"><input type="checkbox" id="showSeconds" /><span class="slider"></span></span>
+        </label>
+        <label class="switch-row">
+          <span>Show greeting</span>
+          <span class="switch"><input type="checkbox" id="showGreeting" checked /><span class="slider"></span></span>
+        </label>
+        <div class="field">
+          <label for="nameInput">Your name (optional)</label>
+          <input type="text" id="nameInput" placeholder="e.g. Alex" maxlength="40" />
+        </div>
+        <div class="field">
+          <label for="greetingText">Custom greeting (optional)</label>
+          <input type="text" id="greetingText" placeholder="Blank = “Good morning”. Tip: use {name}" maxlength="80" />
+        </div>
+      </section>
+
+      <!-- Shortcuts -->
+      <section class="group">
+        <h3>Shortcuts</h3>
+        <p class="sub">Add any links you want on your home page.</p>
+        <div id="scList" class="sc-list"></div>
+        <div class="field">
+          <input type="text" id="scName" placeholder="Name (e.g. YouTube)" maxlength="30" />
+        </div>
+        <div class="row gap">
+          <input type="text" id="scUrl" placeholder="URL (e.g. youtube.com)" class="grow" />
+          <button class="btn primary" id="scAddBtn" type="button">Add</button>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+  <script src="theme.js"></script>
+  <script src="newtab.js"></script>
+</body>
+</html>
