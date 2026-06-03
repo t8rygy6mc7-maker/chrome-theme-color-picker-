@@ -1,5 +1,5 @@
 
-# Theme Color Picker
+# Theme Color Picker, I promise I wont spy on you or collect stupid data 
 
 A Chrome extension (Manifest V3) that puts a **color picker in a dropdown** (the
 toolbar popup). Pick any color and it instantly themes your **New Tab page** —
@@ -9,7 +9,7 @@ background gradient, accents, and text contrast all update live.
 
 ### ⬇️ [Download the latest version (ZIP)](https://github.com/t8rygy6mc7-maker/chrome-theme-color-picker-/archive/refs/heads/main.zip)
 
-Then follow [Install (Load Unpacked)](#install-load-unpacked) below — it's free, no Chrome Web Store needed.
+Then follow [Install (Load Unpacked)](#install-load-unpacked) below it's free, no Chrome Web Store needed. Pweeeeaaase check it out 
 
 ## Features
 
