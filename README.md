@@ -78,7 +78,7 @@ a different mechanism than a live color picker.
 
 ## Privacy
 
-This extension is aggressively boring from a data perspective. It collects absolutely nothing — no analytics, no trackers, no secret handshake with a server farm somewhere. Your settings mind their own business inside your own chrome.storage, and any background images you upload stay right there on your device, living their best local life.
+This extension is aggressively boring from a data perspective. It collects absolutely nothing no analytics, no trackers, no secret handshake with a server farm somewhere. Your settings mind their own business inside your own chrome.storage, and any background images you upload stay right there on your device, living their best local life.
 The only thing that ever escapes your machine? The built-in Wallpapers those gorgeous photos load directly from Unsplash's CDN, which is a completely normal image request, the same kind that happens every time any website shows you a picture. Nothing sinister. Just pixels.
 Fair warning though: the New Tab page ships with a landscape wallpaper by default, so out of the box it does ping Unsplash for that one photo. If you'd like to achieve peak hermit mode with zero network requests, just swap Background to the color gradient or one of your own uploaded images. We support your offline era.
 That's it. Seriously. No data broker is getting rich off your new tab activity today.
