@@ -72,6 +72,9 @@
   let lastBgKey = null;
   let lastBgIsImage = false;
 
+  // Skip re-rendering the shortcut DOM when the list hasn't changed.
+  let lastShortcutsKey = null;
+
   // ---------- utilities ----------
 
   function debounce(fn, ms) {
@@ -101,6 +104,17 @@
     } catch (e) {
       return url;
     }
+  }
+
+  // Only allow https:// or data:image/ URLs into a CSS url("...") / <img>, and
+  // reject characters that could break out of the string. Defense-in-depth for
+  // any value read back from synced storage.
+  function safeBgUrl(u) {
+    return typeof u === "string" &&
+      /^(https:\/\/|data:image\/)/i.test(u) &&
+      !/["'()\\\s]/.test(u)
+      ? u
+      : "";
   }
 
   // Downscale + compress an uploaded image to keep storage small and loading fast.
@@ -431,7 +445,7 @@
     root.setProperty("--accent-dark", T.shade(c, -0.4));
 
     Slideshow.configure(settings);
-    const effImg = Slideshow.url || settings.bgWallpaper || bg; // rotation > pick > upload
+    const effImg = safeBgUrl(Slideshow.url || settings.bgWallpaper || bg); // rotation > pick > upload
     const usingImage = settings.bgType === "image" && !!effImg;
     let motion = settings.bgMotion || "none";
     let desc;
@@ -478,8 +492,7 @@
     updateGreeting();
     Clock.config(settings.clockStyle, settings.hour24, settings.showSeconds);
 
-    renderShortcuts(settings.shortcuts || []);
-    renderScList(settings.shortcuts || []);
+    renderShortcutsIfChanged(settings.shortcuts || []);
     syncControls(c, settings, bg);
   }
 
@@ -487,7 +500,7 @@
     return String(n).padStart(2, "0");
   }
 
-  function getTimeParts(hour24) {
+  function getTimeParts() {
     const now = new Date();
     const H = now.getHours();
     return {
@@ -495,7 +508,6 @@
       m: now.getMinutes(),
       s: now.getSeconds(),
       h12: H % 12 || 12,
-      hour: hour24 ? H : H % 12 || 12,
       ampm: H < 12 ? "AM" : "PM",
     };
   }
@@ -575,7 +587,7 @@
 
     tick() {
       if (clockEl.style.display === "none") return;
-      this["tick_" + this.style](getTimeParts(this.hour24));
+      this["tick_" + this.style](getTimeParts());
     },
 
     build_digital() {
@@ -752,7 +764,7 @@
       del.textContent = "✕";
       del.title = "Remove";
       del.addEventListener("click", () => {
-        const next = lastSettings.shortcuts.slice();
+        const next = (lastSettings.shortcuts || []).slice();
         next.splice(i, 1);
         setSettings({ shortcuts: next });
       });
@@ -764,8 +776,19 @@
     });
   }
 
+  // Rebuild the shortcut DOM only when the list actually changes (applyAll runs
+  // on every color drag / rotation tick, where shortcuts are usually unchanged).
+  function renderShortcutsIfChanged(list) {
+    const key = JSON.stringify(list);
+    if (key === lastShortcutsKey) return;
+    lastShortcutsKey = key;
+    renderShortcuts(list);
+    renderScList(list);
+  }
+
   // Reflect current state into the drawer controls (without disrupting active typing).
   function syncControls(color, settings, bg) {
+    if (drawer.hidden) return; // drawer controls aren't visible — skip the work
     const focused = document.activeElement;
     const set = (el, val) => {
       if (el !== focused) el.value = val;
@@ -780,7 +803,7 @@
     const isImage = settings.bgType === "image";
     bgGradientBtn.classList.toggle("active", !isImage);
     bgImageBtn.classList.toggle("active", isImage);
-    const effImg = settings.bgWallpaper || bg;
+    const effImg = safeBgUrl(settings.bgWallpaper || bg);
     bgPreview.hidden = !effImg;
     if (effImg) bgThumb.src = effImg;
     updateWallpaperActive();
@@ -850,9 +873,9 @@
       renderWallpaperGrid(lastSettings.wpCategory || currentWpCat);
       wpRendered = true;
     }
-    syncControls(lastColor, lastSettings, lastBg);
     drawer.hidden = false;
     scrim.hidden = false;
+    syncControls(lastColor, lastSettings, lastBg); // after un-hiding so the guard passes
   }
 
   function closeDrawer() {
