@@ -45,6 +45,7 @@
   const wpTabs = $("wpTabs");
   const wpGrid = $("wpGrid");
   const wpRotateSel = $("wpRotate");
+  const uiThemeSeg = $("uiThemeSeg");
   const showSearch = $("showSearch");
   const engineSelect = $("engineSelect");
   const placeholderInput = $("placeholderInput");
@@ -439,6 +440,8 @@
     const root = document.documentElement.style;
     const c = T.normalizeHex(color) || T.DEFAULT_COLOR;
 
+    T.applyUiTheme(settings.uiTheme); // light/dark/auto for the Settings panel
+
     // Accent (buttons, shortcuts, highlights) always follows the chosen color.
     root.setProperty("--accent", c);
     root.setProperty("--accent-light", T.shade(c, 0.22));
@@ -813,6 +816,9 @@
     set(bgMotionSel, settings.bgMotion || "none");
     set(bgTextureSel, settings.bgTexture || "none");
     set(wpRotateSel, settings.wpRotate || "off");
+    uiThemeSeg.querySelectorAll(".seg").forEach((b) =>
+      b.classList.toggle("active", b.dataset.ui === (settings.uiTheme || "dark"))
+    );
 
     showSearch.checked = !!settings.showSearch;
     set(engineSelect, T.ENGINES[settings.searchEngine] ? settings.searchEngine : "google");
@@ -948,6 +954,16 @@
     t.addEventListener("click", () => renderWallpaperGrid(t.dataset.cat));
   });
   wpRotateSel.addEventListener("change", (e) => setSettings({ wpRotate: e.target.value }));
+  uiThemeSeg.querySelectorAll(".seg").forEach((b) => {
+    b.addEventListener("click", () => setSettings({ uiTheme: b.dataset.ui }));
+  });
+  try {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      if ((lastSettings.uiTheme || "dark") === "auto") T.applyUiTheme("auto");
+    });
+  } catch (e) {
+    /* no-op */
+  }
 
   // Search
   showSearch.addEventListener("change", (e) => setSettings({ showSearch: e.target.checked }));

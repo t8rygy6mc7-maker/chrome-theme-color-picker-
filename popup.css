@@ -1,6 +1,29 @@
 :root {
   --accent: #6c5ce7;
   --accent-contrast: #ffffff;
+
+  /* Panel surfaces (dark theme defaults). Switched by [data-ui-theme="light"]. */
+  --p-bg: #1c1c22;
+  --p-surface: #2a2a33;
+  --p-surface-2: #34343f;
+  --p-text: #f2f2f5;
+  --p-text-2: #e6e6ec;
+  --p-muted-2: #9a9aa6;
+  --p-faint: #71717c;
+  --p-border: rgba(255, 255, 255, 0.08);
+  --p-ring: #ffffff;
+}
+
+[data-ui-theme="light"] {
+  --p-bg: #f6f7f9;
+  --p-surface: #ffffff;
+  --p-surface-2: #eceef2;
+  --p-text: #1c1c22;
+  --p-text-2: #2e2e38;
+  --p-muted-2: #6e6e7a;
+  --p-faint: #9a9aa6;
+  --p-border: rgba(0, 0, 0, 0.12);
+  --p-ring: #1c1c22;
 }
 
 * {
@@ -12,8 +35,8 @@
 body {
   width: 280px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #1c1c22;
-  color: #f2f2f5;
+  background: var(--p-bg);
+  color: var(--p-text);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -33,7 +56,7 @@ body {
   height: 18px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px var(--p-border);
   transition: background 0.15s ease;
 }
 
@@ -45,7 +68,7 @@ h1 {
 
 .hint {
   font-size: 12px;
-  color: #9a9aa6;
+  color: var(--p-muted-2);
   margin: 6px 0 14px;
 }
 
@@ -64,7 +87,7 @@ h1 {
   overflow: hidden;
   cursor: pointer;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--p-border);
 }
 
 #colorInput {
@@ -95,8 +118,8 @@ h1 {
   align-items: center;
   gap: 2px;
   padding: 0 12px;
-  background: #2a2a33;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--p-surface);
+  border: 1px solid var(--p-border);
   border-radius: 10px;
   transition: border-color 0.15s ease;
 }
@@ -106,7 +129,7 @@ h1 {
 }
 
 .hash {
-  color: #7a7a85;
+  color: var(--p-faint);
   font-size: 15px;
   font-weight: 600;
 }
@@ -117,7 +140,7 @@ h1 {
   background: none;
   border: none;
   outline: none;
-  color: #f2f2f5;
+  color: var(--p-text);
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 1px;
@@ -145,7 +168,7 @@ h1 {
 }
 
 .preset.active {
-  border-color: #fff;
+  border-color: var(--p-ring);
 }
 
 .actions {
@@ -170,17 +193,17 @@ h1 {
 }
 
 .btn.ghost {
-  background: #2a2a33;
-  color: #e6e6ec;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--p-surface);
+  color: var(--p-text-2);
+  border: 1px solid var(--p-border);
 }
 
 .btn.ghost:hover {
-  background: #34343f;
+  background: var(--p-surface-2);
 }
 
 .note {
   font-size: 11px;
-  color: #71717c;
+  color: var(--p-faint);
   text-align: center;
 }

@@ -75,4 +75,5 @@
   // --- Init ---
   buildPresets();
   T.getStoredColor().then(reflect);
+  T.getSettings().then((s) => T.applyUiTheme(s.uiTheme)); // follow the light/dark setting
 })();

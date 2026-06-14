@@ -26,6 +26,7 @@
     greetingName: "",
     customGreeting: "", // overrides the default "Good morning"; supports {name}
     shortcuts: [], // [{ name, url }]
+    uiTheme: "dark", // dark | light | auto — themes the Settings panel + popup
   };
 
   const ENGINES = {
@@ -176,6 +177,24 @@
     });
   }
 
+  // ---------- UI theme (light/dark/auto) ----------
+
+  function resolveUiTheme(pref) {
+    if (pref === "light" || pref === "dark") return pref;
+    try {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    } catch (e) {
+      return "dark";
+    }
+  }
+
+  // Sets data-ui-theme on <html> so the panel CSS variables switch. Returns "light"/"dark".
+  function applyUiTheme(pref) {
+    const resolved = resolveUiTheme(pref);
+    document.documentElement.dataset.uiTheme = resolved;
+    return resolved;
+  }
+
   // ---------- change notifications ----------
 
   // Calls back with the new color whenever it changes (kept for the popup).
@@ -223,6 +242,8 @@
     getBackground,
     setBackground,
     clearBackground,
+    resolveUiTheme,
+    applyUiTheme,
     onColorChange,
     onAnyChange,
   };
