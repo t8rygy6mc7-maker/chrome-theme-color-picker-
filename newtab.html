@@ -14,6 +14,9 @@
   </div>
   <div class="bg-overlay" id="bgOverlay"></div>
 
+  <!-- Weather is pinned to the top corner, outside the centered stack -->
+  <div class="weather" id="weather" hidden></div>
+
   <main class="stage">
     <div class="clock" id="clock">--:--</div>
     <div class="greeting" id="greeting">Hello</div>
@@ -155,6 +158,26 @@
         <div class="field">
           <label for="placeholderInput">Placeholder text (optional)</label>
           <input type="text" id="placeholderInput" placeholder="Search Google or type a URL" />
+        </div>
+      </section>
+
+      <!-- Weather -->
+      <section class="group">
+        <h3>Weather</h3>
+        <label class="switch-row">
+          <span>Show weather <span class="sub-inline">(loads from the internet)</span></span>
+          <span class="switch"><input type="checkbox" id="showWeather" /><span class="slider"></span></span>
+        </label>
+        <div class="field">
+          <label for="weatherCity">City</label>
+          <input type="text" id="weatherCity" placeholder="e.g. London or Paris, France" maxlength="80" spellcheck="false" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Units</label>
+          <div class="segmented" id="weatherUnitSeg">
+            <button class="seg" type="button" data-unit="c">°C</button>
+            <button class="seg" type="button" data-unit="f">°F</button>
+          </div>
         </div>
       </section>
 

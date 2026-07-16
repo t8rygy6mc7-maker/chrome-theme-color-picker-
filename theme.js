@@ -27,6 +27,9 @@
     customGreeting: "", // overrides the default "Good morning"; supports {name}
     shortcuts: [], // [{ name, url }]
     uiTheme: "dark", // dark | light | auto — themes the Settings panel + popup
+    showWeather: false, // off by default so no network request happens unless asked
+    weatherCity: "", // e.g. "London" or "Paris, France"
+    weatherUnit: "c", // c | f — Celsius or Fahrenheit
   };
 
   const ENGINES = {

@@ -18,6 +18,7 @@
   const bgOverlay = $("bgOverlay");
   const clockEl = $("clock");
   const greetingEl = $("greeting");
+  const weatherEl = $("weather");
   const searchForm = $("searchForm");
   const searchInput = $("searchInput");
   const shortcutsEl = $("shortcuts");
@@ -54,6 +55,9 @@
   const hour24Chk = $("hour24");
   const showSecondsChk = $("showSeconds");
   const showGreeting = $("showGreeting");
+  const showWeather = $("showWeather");
+  const weatherCityInput = $("weatherCity");
+  const weatherUnitSeg = $("weatherUnitSeg");
   const nameInput = $("nameInput");
   const greetingTextInput = $("greetingText");
   const scList = $("scList");
@@ -436,6 +440,172 @@
     lastBgIsImage = isImage;
   }
 
+  // ---------- weather (Open-Meteo — no API key, opt-in, only fetches when on) ----------
+
+  // WMO weather codes -> a short label + emoji.
+  const WEATHER_CODES = {
+    0: { t: "Clear sky", i: "☀️" },
+    1: { t: "Mainly clear", i: "🌤️" },
+    2: { t: "Partly cloudy", i: "⛅" },
+    3: { t: "Overcast", i: "☁️" },
+    45: { t: "Fog", i: "🌫️" },
+    48: { t: "Rime fog", i: "🌫️" },
+    51: { t: "Light drizzle", i: "🌦️" },
+    53: { t: "Drizzle", i: "🌦️" },
+    55: { t: "Heavy drizzle", i: "🌦️" },
+    56: { t: "Freezing drizzle", i: "🌧️" },
+    57: { t: "Freezing drizzle", i: "🌧️" },
+    61: { t: "Light rain", i: "🌦️" },
+    63: { t: "Rain", i: "🌧️" },
+    65: { t: "Heavy rain", i: "🌧️" },
+    66: { t: "Freezing rain", i: "🌧️" },
+    67: { t: "Freezing rain", i: "🌧️" },
+    71: { t: "Light snow", i: "🌨️" },
+    73: { t: "Snow", i: "🌨️" },
+    75: { t: "Heavy snow", i: "❄️" },
+    77: { t: "Snow grains", i: "🌨️" },
+    80: { t: "Light showers", i: "🌦️" },
+    81: { t: "Showers", i: "🌧️" },
+    82: { t: "Violent showers", i: "⛈️" },
+    85: { t: "Snow showers", i: "🌨️" },
+    86: { t: "Snow showers", i: "🌨️" },
+    95: { t: "Thunderstorm", i: "⛈️" },
+    96: { t: "Thunderstorm & hail", i: "⛈️" },
+    99: { t: "Thunderstorm & hail", i: "⛈️" },
+  };
+
+  function geocodeCity(city) {
+    const url =
+      "https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name=" +
+      encodeURIComponent(city);
+    return fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error("geocode");
+        return r.json();
+      })
+      .then((j) => {
+        const g = j && j.results && j.results[0];
+        if (!g) throw new Error("not found");
+        const label = g.name + (g.country_code ? ", " + g.country_code : "");
+        return { lat: g.latitude, lon: g.longitude, label };
+      });
+  }
+
+  function fetchCurrentWeather(place, unit) {
+    const url =
+      "https://api.open-meteo.com/v1/forecast?current=temperature_2m,weather_code" +
+      "&temperature_unit=" + (unit === "f" ? "fahrenheit" : "celsius") +
+      "&latitude=" + encodeURIComponent(place.lat) +
+      "&longitude=" + encodeURIComponent(place.lon);
+    return fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error("forecast");
+        return r.json();
+      })
+      .then((j) => {
+        const cur = j && j.current;
+        if (!cur || typeof cur.temperature_2m !== "number") throw new Error("no data");
+        return { temp: cur.temperature_2m, code: cur.weather_code };
+      });
+  }
+
+  const Weather = {
+    key: "", // "city|unit" currently shown or loading
+    data: null, // { temp, unit, code, place }
+    fetchedAt: 0,
+    reqId: 0, // guards against out-of-order fetch responses
+    timer: 0, // debounces network calls while the user types a city
+    STALE_MS: 15 * 60 * 1000,
+
+    // Called from applyAll on every render; only touches the network when the
+    // city/unit changed or the cached reading is stale.
+    update(settings) {
+      const on = !!settings.showWeather;
+      weatherEl.hidden = !on;
+      if (!on) return;
+
+      const city = (settings.weatherCity || "").trim();
+      const unit = settings.weatherUnit === "f" ? "f" : "c";
+      if (!city) {
+        this.key = "";
+        this.data = null;
+        clearTimeout(this.timer);
+        this.render({ hint: "Add a city in Settings to see the weather." });
+        return;
+      }
+
+      const key = city.toLowerCase() + "|" + unit;
+      const stale = Date.now() - this.fetchedAt > this.STALE_MS;
+      if (key === this.key) {
+        if (this.data && stale) this.load(city, unit, key); // silent refresh
+        else if (this.data) this.render(); // fresh cache — just repaint
+        return; // (else a request is already in flight)
+      }
+
+      // City or unit changed — debounce so typing doesn't spam the API.
+      this.key = key;
+      this.data = null;
+      this.render({ loading: true });
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.load(city, unit, key), 600);
+    },
+
+    load(city, unit, key) {
+      this.key = key;
+      const id = ++this.reqId;
+      this.render({ loading: true });
+      geocodeCity(city)
+        .then((place) =>
+          fetchCurrentWeather(place, unit).then((cur) => {
+            if (id !== this.reqId) return; // superseded by a newer request
+            this.data = { temp: cur.temp, unit, code: cur.code, place: place.label };
+            this.fetchedAt = Date.now();
+            this.render();
+          })
+        )
+        .catch(() => {
+          if (id !== this.reqId) return;
+          this.data = null;
+          this.render({ error: "Couldn't find weather for that city." });
+        });
+    },
+
+    render(state) {
+      state = state || {};
+      weatherEl.classList.remove("w-loading", "w-error");
+      if (state.loading) {
+        weatherEl.classList.add("w-loading");
+        weatherEl.textContent = "Loading weather…";
+        return;
+      }
+      if (state.hint) {
+        weatherEl.textContent = state.hint;
+        return;
+      }
+      if (state.error || !this.data) {
+        weatherEl.classList.add("w-error");
+        weatherEl.textContent = state.error || "Weather unavailable.";
+        return;
+      }
+      const d = this.data;
+      const meta = WEATHER_CODES[d.code] || { t: "—", i: "🌡️" };
+      const deg = d.unit === "f" ? "°F" : "°C";
+      const icon = document.createElement("span");
+      icon.className = "w-icon";
+      icon.textContent = meta.i;
+      const temp = document.createElement("span");
+      temp.className = "w-temp";
+      temp.textContent = Math.round(d.temp) + deg;
+      const sep = document.createElement("span");
+      sep.className = "w-sep";
+      sep.textContent = "·";
+      const desc = document.createElement("span");
+      desc.className = "w-desc";
+      desc.textContent = meta.t + (d.place ? " in " + d.place : "");
+      weatherEl.replaceChildren(icon, temp, sep, desc);
+    },
+  };
+
   function applyAll(color, settings, bg) {
     const root = document.documentElement.style;
     const c = T.normalizeHex(color) || T.DEFAULT_COLOR;
@@ -494,6 +664,7 @@
     greetingEl.style.display = settings.showGreeting ? "" : "none";
     updateGreeting();
     Clock.config(settings.clockStyle, settings.hour24, settings.showSeconds);
+    Weather.update(settings);
 
     renderShortcutsIfChanged(settings.shortcuts || []);
     syncControls(c, settings, bg);
@@ -831,6 +1002,13 @@
     showGreeting.checked = !!settings.showGreeting;
     set(nameInput, settings.greetingName || "");
     set(greetingTextInput, settings.customGreeting || "");
+
+    showWeather.checked = !!settings.showWeather;
+    set(weatherCityInput, settings.weatherCity || "");
+    const unit = settings.weatherUnit === "f" ? "f" : "c";
+    weatherUnitSeg.querySelectorAll(".seg").forEach((b) =>
+      b.classList.toggle("active", b.dataset.unit === unit)
+    );
   }
 
   // ---------- state mutation ----------
@@ -981,6 +1159,13 @@
   nameInput.addEventListener("input", (e) => setSettings({ greetingName: e.target.value }, true));
   greetingTextInput.addEventListener("input", (e) => setSettings({ customGreeting: e.target.value }, true));
 
+  // Weather
+  showWeather.addEventListener("change", (e) => setSettings({ showWeather: e.target.checked }));
+  weatherCityInput.addEventListener("input", (e) => setSettings({ weatherCity: e.target.value }, true));
+  weatherUnitSeg.querySelectorAll(".seg").forEach((b) =>
+    b.addEventListener("click", () => setSettings({ weatherUnit: b.dataset.unit }))
+  );
+
   // Shortcuts
   function addShortcut() {
     const url = scUrl.value.trim();
@@ -1055,6 +1240,7 @@
       Slideshow.resume();
       Clock.tick();
       updateGreeting();
+      Weather.update(lastSettings); // re-fetch if the reading has gone stale
       startTicks();
     }
   });

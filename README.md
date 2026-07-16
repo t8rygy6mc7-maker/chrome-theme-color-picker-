@@ -21,6 +21,7 @@ Then follow [Install (Load Unpacked)](#install-load-unpacked) below it's free, n
 - 🌀 **Background motion** — Aurora (animated gradient), Ken Burns, Float drift, Pan, or Mouse parallax. GPU-accelerated (`transform` only), auto-paused when the tab is hidden, and disabled under `prefers-reduced-motion`
 - 🟦 **Gradient texture** — overlay Dots, Grid, Diagonal lines, or Noise (grain) on the color gradient so the motion effects are actually visible (a smooth gradient has no detail to track). CSS-only, no image assets
 - 🔍 **Search box options** — pick Google / Bing / DuckDuckGo, set a custom placeholder, or hide it
+- 🌦️ **Weather** — type a city and see the current temperature + conditions, in °C or °F. Off by default; powered by [Open-Meteo](https://open-meteo.com/) (free, **no API key or account**). Only makes a network request when you turn it on
 - 🔗 **Shortcuts** — add any links you want to your home page
 - 🕐 **Clock styles** — Digital, **Analog**, Flip cards, Binary (geeky), or a Word clock, with 12/24-hour and show-seconds options
 - 👋 **Greeting** — toggle it, add your name, or write a fully custom greeting (supports a `{name}` placeholder)
@@ -58,6 +59,9 @@ extension card.
     images. For a plain color gradient, add a **Texture** (Dots / Grid / Diagonal
     lines / Noise) so the motion has detail to track and is actually visible.
   - **Search box** — choose your search engine, set a custom placeholder, or hide it.
+  - **Weather** — turn it on, type a **city**, and pick **°C or °F**. It shows the
+    current temperature and conditions on your home page. Off by default; when on,
+    it looks the city up and fetches the forecast from Open-Meteo (no API key needed).
   - **Clock & greeting** — pick a clock style (Digital / Analog / Flip cards /
     Binary / Word), 12- or 24-hour, show seconds, and either add your name or
     write your own greeting (`{name}` is replaced with your name).
@@ -81,8 +85,11 @@ a different mechanism than a live color picker.
 ## Privacy
 
 This extension is aggressively boring from a data perspective. It collects absolutely nothing no analytics, no trackers, no secret handshake with a server farm somewhere. Your settings mind their own business inside your own chrome.storage, and any background images you upload stay right there on your device, living their best local life.
-The only thing that ever escapes your machine? The built-in Wallpapers those gorgeous photos load directly from Unsplash's CDN, which is a completely normal image request, the same kind that happens every time any website shows you a picture. Nothing sinister. Just pixels.
-Fair warning though: the New Tab page ships with a landscape wallpaper by default, so out of the box it does ping Unsplash for that one photo. If you'd like to achieve peak hermit mode with zero network requests, just swap Background to the color gradient or one of your own uploaded images. We support your offline era.
+The only things that ever escape your machine are two completely ordinary requests, and only when you opt into them:
+- **Wallpapers** — the built-in photos load directly from Unsplash's CDN, which is the same completely normal image request that happens every time any website shows you a picture. Nothing sinister. Just pixels.
+- **Weather** — if (and only if) you turn on the weather widget, the **city name you type** is sent to [Open-Meteo](https://open-meteo.com/) to look up its coordinates and current forecast. No API key, no account, no location tracking — it only knows the city you told it. Leave weather off and nothing is ever sent.
+
+Fair warning though: the New Tab page ships with a landscape wallpaper by default, so out of the box it does ping Unsplash for that one photo (weather stays off until you enable it). If you'd like to achieve peak hermit mode with zero network requests, just turn weather off and swap Background to the color gradient or one of your own uploaded images. We support your offline era.
 That's it. Seriously. No data broker is getting rich off your new tab activity today.
 ## Files
 
