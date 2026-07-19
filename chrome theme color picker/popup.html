@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>Theme Color Picker</title>
+</head>
+<body>
+  <div class="card">
+    <header class="header">
+      <span class="dot" id="previewDot"></span>
+      <h1>Theme Color</h1>
+    </header>
+
+    <p class="hint">Pick any color to theme your New Tab page.</p>
+
+    <div class="picker-row">
+      <label class="swatch-label" title="Open color picker">
+        <input type="color" id="colorInput" value="#6c5ce7" />
+        <span class="swatch-overlay">Pick</span>
+      </label>
+
+      <div class="hex-field">
+        <span class="hash">#</span>
+        <input
+          type="text"
+          id="hexInput"
+          maxlength="6"
+          spellcheck="false"
+          autocomplete="off"
+          value="6c5ce7"
+        />
+      </div>
+    </div>
+
+    <div class="presets" id="presets"></div>
+
+    <div class="actions">
+      <button id="randomBtn" class="btn ghost" type="button">Random</button>
+      <button id="resetBtn" class="btn ghost" type="button">Reset</button>
+    </div>
+
+    <p class="note">Saves automatically. Open a new tab, then click <b>⚙ Settings</b> for backgrounds, shortcuts &amp; more.</p>
+  </div>
+
+  <script src="theme.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
